@@ -31,7 +31,7 @@ public class StewInfo {
                     StatusEffectInstance effectInstance = new StatusEffectInstance(effect, duration);
 
                     list.add(Text.translatable(effect.getTranslationKey())
-                            .append(" "+ StatusEffectUtil.durationToString(effectInstance, 1))
+                            .append(" ").append(StatusEffectUtil.durationToString(effectInstance, 1))
                             .setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
                 }
             }

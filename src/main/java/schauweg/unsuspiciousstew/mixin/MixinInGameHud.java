@@ -91,8 +91,8 @@ public abstract class MixinInGameHud {
                             StatusEffect effect = StatusEffect.byRawId(tag.getByte("EffectId"));
                             if (effect != null) {
                                 StatusEffectInstance effectInstance = new StatusEffectInstance(effect, duration);
-                                String time = StatusEffectUtil.durationToString(effectInstance, 1);
-                                Text completeText = Text.translatable(effect.getTranslationKey()).append(" "+time);
+                                Text time = StatusEffectUtil.durationToString(effectInstance, 1);
+                                Text completeText = Text.translatable(effect.getTranslationKey()).append(" ").append(time);
                                 textWidth = (this.scaledWidth - getTextRenderer().getWidth(completeText)) / 2;
                                 this.getTextRenderer().drawWithShadow(matrixStack, completeText, (float)textWidth, (float)hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
                             }

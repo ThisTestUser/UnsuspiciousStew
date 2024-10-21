@@ -63,4 +63,4 @@ jobs:
         prerelease: false
         title: "UnsuspiciousStew for ${{ steps.read_properties.outputs.minecraft_version }}"
         files: |
-          build/libs/Unsuspicious+Stew+${{ env.MOD_VERSION }}+(${{ steps.read_properties.outputs.minecraft_version }})-${{ env.MOD_VERSION }}.jar
+          build/libs/*

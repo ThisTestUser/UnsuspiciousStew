@@ -1,9 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
-    id 'maven-publish'
-
-    id "com.modrinth.minotaur" version "2.+"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -48,30 +44,4 @@ tasks.withType(JavaCompile) {
 
 java {
     withSourcesJar()
-}
-
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${archivesBaseName}" }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-
-    }
 }

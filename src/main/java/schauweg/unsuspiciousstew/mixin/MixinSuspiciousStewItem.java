@@ -1,15 +1,15 @@
 package schauweg.unsuspiciousstew.mixin;
 
-import net.minecraft.item.SuspiciousStewItem;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.item.tooltip.TooltipType;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-
-@Mixin(SuspiciousStewItem.class)
+@Mixin(SuspiciousStewEffectsComponent.class)
 public class MixinSuspiciousStewItem {
 
     @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/item/tooltip/TooltipType;isCreative()Z"), method = "appendTooltip")

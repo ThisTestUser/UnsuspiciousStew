@@ -43,7 +43,6 @@ public abstract class MixinInGameHud {
     @Inject(at = @At("HEAD"), method = "renderHeldItemTooltip")
     public void onInjectTooltip(DrawContext context, CallbackInfo info) {
 
-        this.client.getProfiler().push("selectedItemName");
         if (this.heldItemTooltipFade > 0 && !this.currentStack.isEmpty()) {
             MutableText mutableText = Text.empty().append(this.currentStack.getName()).formatted(this.currentStack.getRarity().getFormatting());
             if (this.currentStack.contains(DataComponentTypes.CUSTOM_NAME)) {

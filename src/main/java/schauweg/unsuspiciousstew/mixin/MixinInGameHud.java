@@ -1,7 +1,5 @@
 package schauweg.unsuspiciousstew.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -63,12 +61,7 @@ public abstract class MixinInGameHud {
 
             if (opacity > 0) {
                 context.getMatrices().push();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                int var10001 = textWidth - 2;
-                int var10002 = hotbarOffset - 2;
-                int var10003 = textWidth + mainItemNameWidth + 2;
-                context.fill(var10001, var10002, var10003, hotbarOffset + 9 + 2, this.client.options.getTextBackgroundColor(0));
+                context.fill(textWidth - 2, hotbarOffset - 2, textWidth + mainItemNameWidth + 2, hotbarOffset + 9 + 2, this.client.options.getTextBackgroundColor(0));
                 if (currentStack.getItem() == Items.SUSPICIOUS_STEW){
                     SuspiciousStewEffectsComponent suspiciousStewEffectsComponent = currentStack.getOrDefault(
                         DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
@@ -81,7 +74,6 @@ public abstract class MixinInGameHud {
                             context.drawTextWithShadow(getTextRenderer(), completeText, textWidth, hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
                         }
                 }
-                RenderSystem.disableBlend();
                 context.getMatrices().pop();
             }
         }

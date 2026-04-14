@@ -2,19 +2,19 @@ package schauweg.unsuspiciousstew.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.SuspiciousStewEffectsComponent;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffectUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.SuspiciousStewEffects;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,58 +23,58 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(InGameHud.class)
+@Mixin(Gui.class)
 public abstract class MixinInGameHud {
 
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
 
     @Shadow
-    private int heldItemTooltipFade;
+    private int toolHighlightTimer;
 
     @Shadow
-    private ItemStack currentStack;
+    private ItemStack lastToolHighlight;
 
-    @Shadow public abstract TextRenderer getTextRenderer();
+    @Shadow public abstract Font getFont();
 
-    @Inject(at = @At("HEAD"), method = "renderHeldItemTooltip")
-    public void onInjectTooltip(DrawContext context, CallbackInfo info) {
+    @Inject(at = @At("HEAD"), method = "renderSelectedItemName")
+    public void onInjectTooltip(GuiGraphics graphics, CallbackInfo info) {
 
-        if (this.heldItemTooltipFade > 0 && !this.currentStack.isEmpty()) {
-            MutableText mutableText = Text.empty().append(this.currentStack.getName()).formatted(this.currentStack.getRarity().getFormatting());
-            if (this.currentStack.contains(DataComponentTypes.CUSTOM_NAME)) {
-                mutableText.formatted(Formatting.ITALIC);
+        if (this.toolHighlightTimer > 0 && !this.lastToolHighlight.isEmpty()) {
+            MutableComponent mutableText = Component.empty().append(this.lastToolHighlight.getHoverName()).withStyle(this.lastToolHighlight.getRarity().color());
+            if (this.lastToolHighlight.has(DataComponents.CUSTOM_NAME)) {
+                mutableText.withStyle(ChatFormatting.ITALIC);
             }
 
-            int mainItemNameWidth = this.getTextRenderer().getWidth(mutableText);
-            int textWidth = (context.getScaledWindowWidth() - mainItemNameWidth) / 2;
-            int hotbarOffset = context.getScaledWindowHeight() - 59;
-            if (!this.client.interactionManager.hasStatusBars()) {
+            int mainItemNameWidth = this.getFont().width(mutableText);
+            int textWidth = (graphics.guiWidth() - mainItemNameWidth) / 2;
+            int hotbarOffset = graphics.guiHeight() - 59;
+            if (!this.minecraft.gameMode.canHurtPlayer()) {
                 hotbarOffset += 14;
             }
 
-            int opacity = (int)((float)this.heldItemTooltipFade * 256.0F / 10.0F);
+            int opacity = (int)((float)this.toolHighlightTimer * 256.0F / 10.0F);
             if (opacity > 255) {
                 opacity = 255;
             }
 
             if (opacity > 0) {
-                context.getMatrices().pushMatrix();
-                context.fill(textWidth - 2, hotbarOffset - 2, textWidth + mainItemNameWidth + 2, hotbarOffset + 9 + 2, this.client.options.getTextBackgroundColor(0));
-                if (currentStack.getItem() == Items.SUSPICIOUS_STEW){
-                    SuspiciousStewEffectsComponent suspiciousStewEffectsComponent = currentStack.getOrDefault(
-                        DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
+                graphics.pose().pushMatrix();
+                graphics.fill(textWidth - 2, hotbarOffset - 2, textWidth + mainItemNameWidth + 2, hotbarOffset + 9 + 2, this.minecraft.options.getBackgroundColor(0));
+                if (lastToolHighlight.getItem() == Items.SUSPICIOUS_STEW){
+                    SuspiciousStewEffects suspiciousStewEffectsComponent = lastToolHighlight.getOrDefault(
+                        DataComponents.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffects.EMPTY);
                         for (int i = 0; i < suspiciousStewEffectsComponent.effects().size(); i++) {
-                            SuspiciousStewEffectsComponent.StewEffect stewEffect = suspiciousStewEffectsComponent.effects().get(i);
-                            StatusEffectInstance effectInstance = stewEffect.createStatusEffectInstance();
-                            Text time = StatusEffectUtil.getDurationText(effectInstance, 1, 20);
-                            Text completeText = Text.translatable(effectInstance.getTranslationKey()).append(" ").append(time);
-                            textWidth = (context.getScaledWindowWidth() - getTextRenderer().getWidth(completeText)) / 2;
-                            context.drawTextWithShadow(getTextRenderer(), completeText, textWidth, hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
+                            SuspiciousStewEffects.Entry stewEffect = suspiciousStewEffectsComponent.effects().get(i);
+                            MobEffectInstance effectInstance = stewEffect.createEffectInstance();
+                            Component time = MobEffectUtil.formatDuration(effectInstance, 1, 20);
+                            Component completeText = Component.translatable(effectInstance.getDescriptionId()).append(" ").append(time);
+                            textWidth = (graphics.guiWidth() - getFont().width(completeText)) / 2;
+                            graphics.drawString(getFont(), completeText, textWidth, hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
                         }
                 }
-                context.getMatrices().popMatrix();
+                graphics.pose().popMatrix();
             }
         }
 

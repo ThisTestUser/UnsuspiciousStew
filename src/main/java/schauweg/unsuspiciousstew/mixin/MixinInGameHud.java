@@ -60,7 +60,7 @@ public abstract class MixinInGameHud {
             }
 
             if (opacity > 0) {
-                context.getMatrices().push();
+                context.getMatrices().pushMatrix();
                 context.fill(textWidth - 2, hotbarOffset - 2, textWidth + mainItemNameWidth + 2, hotbarOffset + 9 + 2, this.client.options.getTextBackgroundColor(0));
                 if (currentStack.getItem() == Items.SUSPICIOUS_STEW){
                     SuspiciousStewEffectsComponent suspiciousStewEffectsComponent = currentStack.getOrDefault(
@@ -74,7 +74,7 @@ public abstract class MixinInGameHud {
                             context.drawTextWithShadow(getTextRenderer(), completeText, textWidth, hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
                         }
                 }
-                context.getMatrices().pop();
+                context.getMatrices().popMatrix();
             }
         }
 

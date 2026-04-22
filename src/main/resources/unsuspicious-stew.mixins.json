@@ -6,8 +6,8 @@
   "mixins": [
   ],
   "client": [
-    "MixinInGameHud",
-    "MixinSuspiciousStewItem"
+    "MixinGui",
+    "MixinSuspiciousStewEffects"
   ],
   "injectors": {
     "defaultRequire": 1

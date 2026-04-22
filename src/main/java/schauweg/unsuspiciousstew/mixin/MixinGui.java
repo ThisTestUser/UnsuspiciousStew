@@ -15,6 +15,7 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.SuspiciousStewEffects;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Gui.class)
-public abstract class MixinInGameHud {
+public abstract class MixinGui {
 
     @Shadow
     @Final
@@ -40,7 +41,6 @@ public abstract class MixinInGameHud {
 
     @Inject(at = @At("HEAD"), method = "renderSelectedItemName")
     public void onInjectTooltip(GuiGraphics graphics, CallbackInfo info) {
-
         if (this.toolHighlightTimer > 0 && !this.lastToolHighlight.isEmpty()) {
             MutableComponent mutableText = Component.empty().append(this.lastToolHighlight.getHoverName()).withStyle(this.lastToolHighlight.getRarity().color());
             if (this.lastToolHighlight.has(DataComponents.CUSTOM_NAME)) {
@@ -62,23 +62,20 @@ public abstract class MixinInGameHud {
             if (opacity > 0) {
                 graphics.pose().pushMatrix();
                 graphics.fill(textWidth - 2, hotbarOffset - 2, textWidth + mainItemNameWidth + 2, hotbarOffset + 9 + 2, this.minecraft.options.getBackgroundColor(0));
-                if (lastToolHighlight.getItem() == Items.SUSPICIOUS_STEW){
-                    SuspiciousStewEffects suspiciousStewEffectsComponent = lastToolHighlight.getOrDefault(
+                if (lastToolHighlight.getItem() == Items.SUSPICIOUS_STEW) {
+                    SuspiciousStewEffects stewEffects = lastToolHighlight.getOrDefault(
                         DataComponents.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffects.EMPTY);
-                        for (int i = 0; i < suspiciousStewEffectsComponent.effects().size(); i++) {
-                            SuspiciousStewEffects.Entry stewEffect = suspiciousStewEffectsComponent.effects().get(i);
-                            MobEffectInstance effectInstance = stewEffect.createEffectInstance();
+                        for (int i = 0; i < stewEffects.effects().size(); i++) {
+                            SuspiciousStewEffects.Entry entry = stewEffects.effects().get(i);
+                            MobEffectInstance effectInstance = entry.createEffectInstance();
                             Component time = MobEffectUtil.formatDuration(effectInstance, 1, 20);
                             Component completeText = Component.translatable(effectInstance.getDescriptionId()).append(" ").append(time);
                             textWidth = (graphics.guiWidth() - getFont().width(completeText)) / 2;
-                            graphics.drawString(getFont(), completeText, textWidth, hotbarOffset-(i*14)-14, 13421772 + (opacity << 24));
+                            graphics.drawString(getFont(), completeText, textWidth, hotbarOffset - (i * 14) -14, 13421772 + (opacity << 24));
                         }
                 }
                 graphics.pose().popMatrix();
             }
         }
-
     }
-
-
 }
